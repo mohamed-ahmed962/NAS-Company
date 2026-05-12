@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NAS Infrastructure Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Cairo',sans-serif;
+}
+
+body{
+background:
+radial-gradient(circle at top right,#1e3a8a 0%,transparent 25%),
+radial-gradient(circle at bottom left,#2563eb 0%,transparent 25%),
+linear-gradient(180deg,#edf4ff,#e8f0ff);
+
+padding:20px;
+color:#0f172a;
+overflow-x:hidden;
+min-height:100vh;
+}
+
+#dashboard{
+max-width:1800px;
+margin:auto;
+}
+
+.main-header{
+position:relative;
+
+background:
+linear-gradient(135deg,#020617,#0b1f4d,#1d4ed8);
+
+padding:50px 30px;
+border-radius:30px;
+overflow:hidden;
+margin-bottom:25px;
+
+box-shadow:
+0 25px 60px rgba(0,0,0,.25),
+inset 0 1px 0 rgba(255,255,255,.08);
+
+border:1px solid rgba(255,255,255,.08);
+}
+
+.main-header::before{
+content:'';
+position:absolute;
+width:400px;
+height:400px;
+background:rgba(255,255,255,.05);
+border-radius:50%;
+top:-180px;
+left:-150px;
+}
+
+.main-header::after{
+content:'';
+position:absolute;
+width:300px;
+height:300px;
+background:rgba(255,255,255,.04);
+border-radius:50%;
+bottom:-120px;
+right:-80px;
+}
+
+.header-content{
+position:relative;
+z-index:2;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:30px;
+flex-wrap:wrap;
+}
+
+.brand-side{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.nas-logo{
+font-size:clamp(50px,8vw,90px);
+font-weight:900;
+line-height:1;
+letter-spacing:6px;
+
+background:
+linear-gradient(135deg,#fbbf24,#f59e0b,#fde68a);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
+text-shadow:0 8px 25px rgba(0,0,0,.25);
+}
+
+.brand-sub{
+font-size:clamp(16px,2.5vw,20px);
+font-weight:800;
+color:#dbeafe;
+}
+
+.header-center{
+flex:1;
+text-align:center;
+}
+
+.header-center h1{
+font-size:clamp(28px,5vw,48px);
+font-weight:900;
+color:#fff;
+line-height:1.3;
+margin-bottom:10px;
+}
+
+.header-center p{
+font-size:clamp(14px,2.2vw,16px);
+font-weight:700;
+color:#c7d2fe;
+}
+
+.top-stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:18px;
+margin-top:30px;
+position:relative;
+z-index:2;
+}
+
+.top-card{
+position:relative;
+
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(12px);
+
+border:1px solid rgba(255,255,255,.08);
+
+border-radius:24px;
+padding:24px;
+
+overflow:hidden;
+text-align:center;
+
+box-shadow:
+0 12px 30px rgba(0,0,0,.14),
+inset 0 1px 0 rgba(255,255,255,.08);
+
+transition:.35s;
+}
+
+.top-card::before{
+content:'';
+position:absolute;
+width:120px;
+height:120px;
+background:rgba(255,255,255,.05);
+border-radius:50%;
+top:-50px;
+left:-40px;
+}
+
+.top-icon{
+width:64px;
+height:64px;
+border-radius:20px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:28px;
+
+margin:auto auto 16px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+
+.top-icon.blue{
+background:linear-gradient(135deg,#2563eb,#38bdf8);
+}
+
+.top-icon.green{
+background:linear-gradient(135deg,#16a34a,#4ade80);
+}
+
+.top-icon.gold{
+background:linear-gradient(135deg,#f59e0b,#facc15);
+}
+
+.top-icon.red{
+background:linear-gradient(135deg,#dc2626,#f87171);
+}
+
+.top-card h2{
+font-size:clamp(32px,6vw,40px);
+font-weight:900;
+color:#fff;
+margin-bottom:6px;
+}
+
+.top-card p{
+font-size:14px;
+font-weight:800;
+color:#f8fafc;
+margin-bottom:4px;
+}
+
+.top-card span{
+font-size:12px;
+font-weight:700;
+color:#bfdbfe;
+letter-spacing:.5px;
+}
+
+.projects{
+display:grid;
+gap:25px;
+}
+
+.project-page{
+background:rgba(255,255,255,.88);
+
+backdrop-filter:blur(10px);
+
+border-radius:28px;
+padding:30px;
+
+box-shadow:
+0 18px 40px rgba(0,0,0,.08),
+0 2px 8px rgba(255,255,255,.4) inset;
+
+border:1px solid rgba(255,255,255,.7);
+
+position:relative;
+overflow:hidden;
+}
+
+.project-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.project-title{
+background:
+linear-gradient(135deg,#0b1f4d,#2563eb);
+
+color:#fff;
+padding:12px 28px;
+border-radius:50px;
+
+font-size:clamp(20px,3vw,24px);
+font-weight:900;
+}
+
+.project-tag{
+background:
+linear-gradient(135deg,#dcfce7,#ecfdf5);
+
+color:#15803d;
+
+padding:10px 20px;
+
+border-radius:16px;
+
+font-size:13px;
+font-weight:900;
+}
+
+.project-progress-center{
+text-align:center;
+margin-bottom:25px;
+
+padding:25px;
+
+background:
+linear-gradient(
+135deg,
+rgba(37,99,235,.03),
+rgba(22,163,74,.03)
+);
+
+border-radius:20px;
+}
+
+.progress-display{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:12px;
+}
+
+.progress-circle{
+position:relative;
+width:140px;
+height:140px;
+}
+
+.progress-number{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:42px;
+font-weight:900;
+color:#0f172a;
+}
+
+.progress-label{
+font-size:16px;
+font-weight:700;
+color:#475569;
+}
+
+.table-wrapper{
+border-radius:22px;
+overflow:auto;
+box-shadow:0 12px 30px rgba(0,0,0,.06);
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+min-width:700px;
+border-collapse:collapse;
+background:#fff;
+}
+
+thead{
+background:
+linear-gradient(135deg,#020617,#2563eb);
+
+color:#fff;
+}
+
+th{
+padding:16px 12px;
+font-size:14px;
+font-weight:900;
+text-align:center;
+}
+
+td{
+padding:14px 12px;
+text-align:center;
+font-size:13px;
+font-weight:700;
+border-bottom:1px solid #edf2ff;
+}
+
+tbody tr:nth-child(even){
+background:#f8fbff;
+}
+
+.progress-bar{
+width:100%;
+height:10px;
+background:#e2e8f0;
+border-radius:50px;
+overflow:hidden;
+margin:6px auto;
+}
+
+.progress-fill{
+height:100%;
+background:
+linear-gradient(90deg,#16a34a,#4ade80);
+
+border-radius:50px;
+}
+
+.status{
+font-size:12px;
+font-weight:900;
+margin-top:4px;
+}
+
+.status.done{
+color:#2563eb;
+}
+
+.status.progress{
+color:#16a34a;
+}
+
+.project-running{
+background:
+linear-gradient(135deg,#dcfce7,#ecfdf5);
+
+color:#15803d;
+
+padding:12px 20px;
+
+border-radius:16px;
+
+font-size:14px;
+font-weight:900;
+
+display:flex;
+align-items:center;
+justify-content:center;
+margin-top:15px;
+}
+
+.export-btn{
+position:fixed;
+
+bottom:20px;
+left:20px;
+right:20px;
+
+max-width:400px;
+
+margin:0 auto;
+
+background:
+linear-gradient(135deg,#020617,#1d4ed8,#38bdf8);
+
+color:#fff;
+
+border:none;
+
+padding:16px 28px;
+
+border-radius:20px;
+
+font-size:16px;
+font-weight:900;
+
+cursor:pointer;
+
+z-index:999;
+}
+
+.loading{
+display:inline-block;
+width:20px;
+height:20px;
+border:3px solid rgba(255,255,255,.3);
+border-radius:50%;
+border-top-color:#fff;
+animation:spin 1s ease-in-out infinite;
+}
+
+@keyframes spin{
+to{
+transform:rotate(360deg);
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="dashboard">
+
+<div class="main-header">
+
+<div class="header-content">
+
+<div class="brand-side">
+<div class="nas-logo">NAS</div>
+<div class="brand-sub">
+للاستشارات والأعمال الهندسية
+</div>
+</div>
+
+<div class="header-center">
+<h1>
+متابعة مشاريع البنية التحتية - شركة ناس
+</h1>
+
+<p>
+Infrastructure Projects Monitoring Executive Dashboard
+</p>
+</div>
+
+</div>
+
+<div class="top-stats">
+
+<div class="top-card">
+<div class="top-icon blue">📁</div>
+<h2 id="projectsCount">0</h2>
+<p>إجمالي المشاريع</p>
+<span>Infrastructure Projects</span>
+</div>
+
+<div class="top-card">
+<div class="top-icon green">📈</div>
+<h2 id="avgProgress">0%</h2>
+<p>متوسط الإنجاز</p>
+<span>Overall Progress</span>
+</div>
+
+<div class="top-card">
+<div class="top-icon gold">⚡</div>
+<h2>LIVE</h2>
+<p>تحديث يدوي</p>
+<span>Refresh To Update</span>
+</div>
+
+<div class="top-card">
+<div class="top-icon red">🏗️</div>
+<h2>NAS</h2>
+<p>إدارة المشروعات</p>
+<span>Engineering Management</span>
+</div>
+
+</div>
+
+</div>
+
+<div class="projects" id="projectsContainer"></div>
+
+</div>
+
+<button class="export-btn" onclick="exportImage()">
+📸 تصدير التقرير
+</button>
+
+<script>
+
+const API_URL =
+"https://opensheet.elk.sh/1VMA-QZ5vIyAUYjLLHUsmnh_VHS3jTdYM-o7FugMUmvE/1";
+
+const container =
+document.getElementById("projectsContainer");
+
+let progressCharts = {};
+
+async function loadData(){
+
+try{
+
+const res = await fetch(API_URL);
+
+const data = await res.json();
+
+let grouped = {};
+
+data.forEach(row=>{
+
+if(!grouped[row.project]){
+grouped[row.project] = [];
+}
+
+grouped[row.project].push(row);
+
+});
+
+container.innerHTML = "";
+
+let overallTotal = 0;
+let overallProjects = 0;
+
+Object.keys(grouped).forEach(pid=>{
+
+let rows = "";
+let totalPercent = 0;
+
+grouped[pid].forEach(r=>{
+
+let total = Number(r.total);
+let completed = Number(r.completed);
+
+let percent =
+total
+? Math.min(Math.floor((completed/total)*100),100)
+: 0;
+
+totalPercent += percent;
+
+let statusText =
+percent >= 100
+? "تم الانتهاء"
+: "قيد التنفيذ";
+
+let statusClass =
+percent >= 100
+? "done"
+: "progress";
+
+rows += `
+
+<tr>
+
+<td>${r.item}</td>
+
+<td>${total.toLocaleString()}</td>
+
+<td>${completed.toLocaleString()}</td>
+
+<td>
+
+<div class="progress-bar">
+<div class="progress-fill" style="width:${percent}%"></div>
+</div>
+
+<div style="
+font-weight:900;
+font-size:14px;
+margin:4px 0;
+color:#0f172a;
+">
+${percent}%
+</div>
+
+<div class="status ${statusClass}">
+${statusText}
+</div>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+let avg =
+Math.floor(totalPercent / grouped[pid].length);
+
+overallTotal += avg;
+overallProjects++;
+
+container.innerHTML += `
+
+<div class="project-page">
+
+<div class="project-header">
+
+<div class="project-title">
+مشروع ${pid}
+</div>
+
+<div class="project-tag">
+🟢 مشروع نشط
+</div>
+
+</div>
+
+<div class="project-progress-center">
+
+<div class="progress-display">
+
+<div class="progress-circle">
+
+<canvas id="progressChart${pid}">
+</canvas>
+
+<div class="progress-number">
+${avg}%
+</div>
+
+</div>
+
+<div class="progress-label">
+نسبة إنجاز المشروع
+</div>
+
+</div>
+
+</div>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>البند</th>
+<th>الإجمالي</th>
+<th>المنفذ</th>
+<th>النسبة</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${rows}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="project-running">
+🏗️ المشروع قيد التنفيذ
+</div>
+
+</div>
+
+`;
+
+setTimeout(()=>{
+
+const ctx =
+document.getElementById(
+`progressChart${pid}`
+);
+
+if(ctx){
+
+new Chart(ctx,{
+
+type:'doughnut',
+
+data:{
+datasets:[{
+data:[avg,100-avg],
+
+backgroundColor:[
+'#16a34a',
+'#e2e8f0'
+],
+
+borderWidth:8,
+borderColor:'#fff'
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:true,
+cutout:'75%',
+
+plugins:{
+legend:{
+display:false
+}
+}
+}
+
+});
+
+}
+
+},200);
+
+});
+
+const overallAvg =
+overallProjects
+? Math.floor(overallTotal / overallProjects)
+: 0;
+
+document.getElementById(
+"avgProgress"
+).innerText =
+overallAvg + "%";
+
+document.getElementById(
+"projectsCount"
+).innerText =
+overallProjects;
+
+}
+
+catch(error){
+
+console.error(error);
+
+container.innerHTML = `
+<div style="
+text-align:center;
+padding:60px;
+color:#ef4444;
+">
+<h3>
+خطأ في تحميل البيانات
+</h3>
+</div>
+`;
+
+}
+
+}
+
+loadData();
+
+async function exportImage(){
+
+const btn =
+document.querySelector('.export-btn');
+
+btn.style.display='none';
+
+const canvas =
+await html2canvas(
+document.getElementById('dashboard'),
+{
+scale:2,
+backgroundColor:'#edf4ff'
+}
+);
+
+const link =
+document.createElement('a');
+
+link.download =
+'NAS_Executive_Report.png';
+
+link.href =
+canvas.toDataURL('image/png');
+
+link.click();
+
+btn.style.display='block';
+
+}
+
+</script>
+
+</body>
+</html>
